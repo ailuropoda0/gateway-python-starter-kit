@@ -1,0 +1,10 @@
+[
+  {
+    "type": "mock",
+    "name": "Py-Mock 1",
+    "options": {
+      "min": 25,
+      "max": 50
+    }
+  }
+]
