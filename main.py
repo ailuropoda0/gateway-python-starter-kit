@@ -15,6 +15,7 @@ import socket
 import time
 import argparse
 import importlib
+import traceback
 
 from cisco_deviot.gateway import Gateway
 
@@ -32,41 +33,28 @@ def load_configs(filename):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='gateway-python-starter-kit.')
-    parser.add_argument('--deviot-server', dest='deviot_server', required=True, type=str,
-                        help='url of deviot-server, eg: http://192.168.25.101:9000')
-    parser.add_argument('--mqtt-server', dest='mqtt_server', required=True, type=str,
-                        help='url of mqtt-server, eg: mqtt://192.168.25.101:1883')
+    parser.add_argument('--deviot-server', dest='deviot_server', type=str,
+                        help='url of deviot-server, eg: deviot.cisco.com')
+    parser.add_argument('--mqtt-server', dest='mqtt_server', type=str,
+                        help='url of mqtt-server, eg: deviot.cisco.com:18883')
+    parser.add_argument('--account', dest="account", required=True, type=str, help='your account on DevIoT')
     args = parser.parse_args()
 
-    hostname = socket.gethostname()
-    gateway = Gateway(name="ps_" + hostname.lower(),
-                      deviot_server=args.deviot_server,
-                      connector_server=args.mqtt_server,
-                      account="")
-    instances = []
-    sensors = load_configs('sensors.json')
-    for i, sensor in enumerate(sensors):
-        name = sensor["name"]
-        stype = sensor["type"]
-        sid = stype.lower() + "_" + str(i)
-        klass = class_for_name("things."+stype, stype.capitalize())
-        instance = klass(sid, name)
-        if "options" in sensor:
-            instance.options = sensor["options"]
-        instances.append(instance)
-        gateway.register(instance)
-
+    hostname = socket.gethostname() # get computer name
+    deviot_url = "deviot.cisco.com" if args.deviot_server is None else args.deviot_server
+    mqtt_url = "deviot.cisco.com:18883" if args.mqtt_server is None else args.mqtt_server
+    gateway = Gateway(name='ps_' + hostname.lower(), deviot_server=deviot_url, connector_server=mqtt_url, account=args.account)
+    gateway.load('sensors.json', 'things')
     gateway.start()
+
     while True:
         time.sleep(1)
-        data = {}
-        for instance in instances:
-            if getattr(instance, 'update_state', None):
-                instance.update_state()
-            instanceData = {}
-            for prop in instance.properties:
-                instanceData[prop.name] = getattr(instance, prop.name)
-            if len(instanceData) != 0:
-                data[instance.id] = instanceData
-        if len(data) != 0:
-            gateway.send_data(data)
+        try:
+            for instance in gateway.things.values():
+                if getattr(instance, 'update_state', None):
+                    instance.update_state()
+        except:
+            traceback.print_exc()
+            break
+
+    gateway.stop()
