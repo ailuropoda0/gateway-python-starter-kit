@@ -13,25 +13,27 @@
 # under the License.
 
 
+import time
 import random
-from cisco_deviot.thing import Action, Thing, Property, PropertyTypeInt
+from cisco_deviot.thing import Action, Thing, Property, PropertyType
 from cisco_deviot import logger
 
 
-class Mock(Thing):
+class Mock_beeper(Thing):
     def __init__(self, tid, name):
         Thing.__init__(self, tid, name, "mock")
-        self.add_property(Property("value", PropertyTypeInt))
         self.add_action(Action("beep").
-                        add_parameter(Property(name="duration", value=10, range=[10, 100])).
-                        add_parameter(Property(name="interval", value=1, range=[1, 10])))
-        self.value = 0
+                        add_parameter(Property(name="duration", type=PropertyType.INT, value=10, range=[10, 100])).
+                        add_parameter(Property(name="interval", type=PropertyType.INT, value=1, range=[1, 10])))
         self.options = {}
 
-    def update_state(self):
-        vmin = self.options.get("min", 1)
-        vmax = self.options.get("max", 100)
-        self.value = random.randint(vmin, vmax)
-
     def beep(self, duration, interval):
-        logger.info("[BEEP] {duration} {interval} ".format(duration=duration, interval=interval))
+        if not isinstance(duration, int):
+            duration = int(duration)
+        if not isinstance(interval, int):
+            interval = int(interval)
+        elapsed_time = 0
+        while elapsed_time < duration:
+            logger.info("[BEEP]")
+            time.sleep(interval)
+            elapsed_time += interval

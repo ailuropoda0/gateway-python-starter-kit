@@ -1,10 +1,11 @@
 [
   {
-    "type": "mock",
+    "type": "mock_beeper",
     "name": "Py-Mock 1",
-    "options": {
-      "min": 25,
-      "max": 50
-    }
+    "options": {}
+  },
+  {
+    "type": "cpu",
+    "name": "CPU"
   }
 ]
