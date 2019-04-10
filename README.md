@@ -26,6 +26,7 @@ git clone https://github.com/ailuropoda0/gateway-python-starter-kit.git
 ```
 #### 2) Run the sample code
 ```
+cd gateway-python-starter-kit
 python main.py --account your_deviot_id@mail.domain
 ```
 You should use '--account' argument to set account. main.py uses public [DevIoT](https://deviot.cisco.com) server as a default value. If you want to utilize your custom DevIoT server, then use '--deviot-server' and '--mqtt-server' arguments.
