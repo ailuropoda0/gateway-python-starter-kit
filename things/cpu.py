@@ -1,6 +1,3 @@
-import time
-import os
-
 from cisco_deviot.thing import Action, Thing, Property, PropertyType
 from cisco_deviot import logger
 
@@ -24,4 +21,6 @@ class Cpu(Thing):
         self.add_property(Property(name="memory_usage", unit="%"))
 
     def update_state(self):
-        self.update_property(CPU_usage=psutil.cpu_percent(), memory_usage=psutil.virtual_memory().percent)
+        cpu = psutil.cpu_percent()
+        memory = psutil.virtual_memory().percent
+        self.update_property(CPU_usage=cpu, memory_usage=memory)

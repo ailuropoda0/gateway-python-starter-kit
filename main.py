@@ -44,7 +44,7 @@ if __name__ == '__main__':
     deviot_url = "deviot.cisco.com" if args.deviot_server is None else args.deviot_server
     mqtt_url = "deviot.cisco.com:18883" if args.mqtt_server is None else args.mqtt_server
     gateway = Gateway(name='ps_' + hostname.lower(), deviot_server=deviot_url, connector_server=mqtt_url, account=args.account)
-    gateway.load('sensors.json', 'things')
+    gateway.load('things.json', 'things')
     gateway.start()
 
     while True:
